@@ -95,6 +95,8 @@
 
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 28px; }
 
+    .note { color: var(--muted); margin-bottom: 20px; }
+
     .book { display: flex; flex-direction: column; gap: 10px; }
     .book .cover { width: 100%; }
     .book h3 { font-size: 1.05rem; }
@@ -153,37 +155,10 @@
     <section class="section" id="books">
       <div class="wrap">
         <h2>Latest books</h2>
-        <p class="sub">These are sample books. Your real books will appear here.</p>
+        <p class="sub">Pick a book, pay with mobile money, and download it right away.</p>
 
-        <div class="grid">
-          <article class="book">
-            <div class="cover c-teal"><span>Sample Book One</span><small>Author Name</small></div>
-            <h3>Sample Book One</h3>
-            <p class="author">Author Name</p>
-            <div class="row"><span class="price">UGX 15,000</span><a class="buy" href="#">Buy</a></div>
-          </article>
-
-          <article class="book">
-            <div class="cover c-gold"><span>Sample Book Two</span><small>Author Name</small></div>
-            <h3>Sample Book Two</h3>
-            <p class="author">Author Name</p>
-            <div class="row"><span class="price">UGX 20,000</span><a class="buy" href="#">Buy</a></div>
-          </article>
-
-          <article class="book">
-            <div class="cover c-navy"><span>Sample Book Three</span><small>Author Name</small></div>
-            <h3>Sample Book Three</h3>
-            <p class="author">Author Name</p>
-            <div class="row"><span class="price">UGX 12,000</span><a class="buy" href="#">Buy</a></div>
-          </article>
-
-          <article class="book">
-            <div class="cover c-rust"><span>Sample Book Four</span><small>Author Name</small></div>
-            <h3>Sample Book Four</h3>
-            <p class="author">Author Name</p>
-            <div class="row"><span class="price">UGX 25,000</span><a class="buy" href="#">Buy</a></div>
-          </article>
-        </div>
+        <p class="note" id="book-note">Loading books...</p>
+        <div class="grid" id="book-list"></div>
       </div>
     </section>
   </main>
@@ -198,6 +173,83 @@
       </div>
     </div>
   </footer>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+    import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+
+    // These settings tell the page which Firebase project to talk to.
+    const firebaseConfig = {
+      apiKey: "AIzaSyBYkOERyILn2ikGJVM8-dqkMaew17c9n6U",
+      authDomain: "e-books-store-7e6ae.firebaseapp.com",
+      projectId: "e-books-store-7e6ae",
+      storageBucket: "e-books-store-7e6ae.firebasestorage.app",
+      messagingSenderId: "881233235481",
+      appId: "1:881233235481:web:041c102d14363fdf5b2488"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const list = document.getElementById("book-list");
+    const note = document.getElementById("book-note");
+
+    // Matches the "cover" colour name in the database to a colour style above.
+    const coverStyles = { teal: "c-teal", navy: "c-navy", gold: "c-gold", rust: "c-rust" };
+
+    // Small helper: makes one page element, optionally with a CSS class and text.
+    function make(tag, className, text) {
+      const node = document.createElement(tag);
+      if (className) node.className = className;
+      if (text !== undefined) node.textContent = text;
+      return node;
+    }
+
+    // Builds one book card from one database entry.
+    function makeCard(book) {
+      const title = book.title || "Untitled";
+      const author = book.author || "";
+
+      const card = make("article", "book");
+
+      const cover = make("div", "cover " + (coverStyles[book.cover] || "c-teal"));
+      cover.append(make("span", "", title), make("small", "", author));
+
+      const row = make("div", "row");
+      const price = make("span", "price", "UGX " + Number(book.price || 0).toLocaleString("en-US"));
+      const buy = make("a", "buy", "Buy");
+      buy.href = "#";
+      row.append(price, buy);
+
+      card.append(cover, make("h3", "", title), make("p", "author", author), row);
+      return card;
+    }
+
+    // Fetches the published books from the database and shows them.
+    async function loadBooks() {
+      try {
+        const booksQuery = query(collection(db, "books"), where("published", "==", true));
+        const snapshot = await getDocs(booksQuery);
+
+        list.innerHTML = "";
+
+        if (snapshot.empty) {
+          note.textContent = "No books yet. Check back soon.";
+          return;
+        }
+
+        note.textContent = "";
+        snapshot.forEach(function (entry) {
+          list.append(makeCard(entry.data()));
+        });
+      } catch (error) {
+        console.error(error);
+        note.textContent = "The books could not be loaded. Please refresh the page.";
+      }
+    }
+
+    loadBooks();
+  </script>
 
 </body>
 </html>
