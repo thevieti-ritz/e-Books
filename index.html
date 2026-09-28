@@ -3,138 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Bookshelf | Ebooks you can buy with mobile money</title>
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-
-  <style>
-    :root {
-      --page: #F4F6F8;
-      --ink: #0F1B2D;
-      --muted: #55627A;
-      --teal: #0B7A75;
-      --navy: #24365A;
-      --gold: #F2B233;
-      --rust: #B8420F;
-      --white: #FFFFFF;
-      --line: #DDE2EA;
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: "Instrument Sans", Arial, sans-serif;
-      background: var(--page);
-      color: var(--ink);
-      line-height: 1.6;
-    }
-
-    h1, h2, h3 {
-      font-family: "Bricolage Grotesque", Georgia, serif;
-      line-height: 1.15;
-    }
-
-    a { color: inherit; text-decoration: none; }
-
-    a:focus-visible, button:focus-visible {
-      outline: 3px solid var(--gold);
-      outline-offset: 3px;
-    }
-
-    .wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
-
-    /* ---------- Top bar ---------- */
-    .topbar { background: var(--white); border-bottom: 1px solid var(--line); }
-    .topbar .wrap {
-      display: flex; align-items: center; justify-content: space-between;
-      height: 64px;
-    }
-    .logo { font-family: "Bricolage Grotesque", Georgia, serif; font-weight: 700; font-size: 1.4rem; }
-    .nav { display: flex; gap: 24px; font-weight: 500; color: var(--muted); }
-    .nav a:hover { color: var(--teal); }
-
-    /* ---------- Hero ---------- */
-    .hero { padding: 64px 0 56px; }
-    .hero .wrap {
-      display: grid; grid-template-columns: 1.1fr 0.9fr;
-      gap: 40px; align-items: center;
-    }
-    .hero h1 { font-size: clamp(2.2rem, 5vw, 3.4rem); font-weight: 700; margin-bottom: 16px; }
-    .hero p { font-size: 1.1rem; color: var(--muted); max-width: 46ch; margin-bottom: 28px; }
-
-    .btn {
-      display: inline-block; background: var(--teal); color: var(--white);
-      padding: 13px 26px; border-radius: 8px; font-weight: 600;
-    }
-    .btn:hover { background: #096560; }
-
-    .shelf { display: flex; gap: 14px; align-items: flex-end; justify-content: center; }
-    .shelf .cover { width: 30%; }
-
-    /* ---------- Book covers (drawn with colour, no images needed) ---------- */
-    .cover {
-      aspect-ratio: 2 / 3; border-radius: 4px 10px 10px 4px;
-      padding: 14px 12px; display: flex; flex-direction: column; justify-content: space-between;
-      color: var(--white);
-      box-shadow: inset 8px 0 0 rgba(0, 0, 0, 0.18), 0 8px 18px rgba(15, 27, 45, 0.18);
-    }
-    .cover span { font-family: "Bricolage Grotesque", Georgia, serif; font-weight: 700; font-size: 1rem; line-height: 1.2; }
-    .cover small { font-size: 0.75rem; opacity: 0.85; }
-    .c-teal { background: var(--teal); }
-    .c-navy { background: var(--navy); }
-    .c-gold { background: var(--gold); color: var(--ink); }
-    .c-rust { background: var(--rust); }
-    .shelf .cover:nth-child(2) { width: 34%; }
-
-    /* ---------- Book list ---------- */
-    .section { padding: 24px 0 72px; }
-    .section h2 { font-size: 1.7rem; margin-bottom: 6px; }
-    .section .sub { color: var(--muted); margin-bottom: 28px; }
-
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 28px; }
-
-    .note { color: var(--muted); margin-bottom: 20px; }
-
-    .book { display: flex; flex-direction: column; gap: 10px; }
-    .book .cover { width: 100%; }
-    .book h3 { font-size: 1.05rem; }
-    .book .author { color: var(--muted); font-size: 0.92rem; }
-    .book .row { display: flex; align-items: center; justify-content: space-between; margin-top: 4px; }
-    .price { font-weight: 600; }
-    .buy {
-      border: 1.5px solid var(--teal); color: var(--teal);
-      padding: 7px 16px; border-radius: 8px; font-weight: 600; font-size: 0.92rem;
-    }
-    .buy:hover { background: var(--teal); color: var(--white); }
-
-    /* ---------- Footer ---------- */
-    footer { background: var(--ink); color: #C6CEDB; padding: 28px 0; font-size: 0.92rem; }
-    footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
-    footer .links { display: flex; gap: 20px; }
-    footer a:hover { color: var(--white); }
-
-    /* ---------- Phones ---------- */
-    @media (max-width: 720px) {
-      .hero .wrap { grid-template-columns: 1fr; }
-      .nav { gap: 16px; }
-      .hero { padding-top: 40px; }
-    }
-  </style>
+  <title>Bookshelf</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-
-  <header class="topbar">
-    <div class="wrap">
-      <a class="logo" href="index.html">Bookshelf</a>
-      <nav class="nav">
-        <a href="#books">Books</a>
-        <a href="#">My Library</a>
-      </nav>
-    </div>
-  </header>
+  <div id="site-header"></div>
 
   <main>
     <section class="hero">
@@ -145,9 +19,9 @@
           <a class="btn" href="#books">Browse books</a>
         </div>
         <div class="shelf" aria-hidden="true">
-          <div class="cover c-teal"><span>Sample Book One</span><small>Author Name</small></div>
-          <div class="cover c-gold"><span>Sample Book Two</span><small>Author Name</small></div>
-          <div class="cover c-navy"><span>Sample Book Three</span><small>Author Name</small></div>
+          <div class="cover c-teal"></div>
+          <div class="cover c-gold"></div>
+          <div class="cover c-navy"></div>
         </div>
       </div>
     </section>
@@ -157,99 +31,116 @@
         <h2>Latest books</h2>
         <p class="sub">Pick a book, pay with mobile money, and download it right away.</p>
 
+        <div class="tools">
+          <input class="search" id="search" type="search" placeholder="Search by title or author" aria-label="Search books">
+          <div class="chips" id="chips"></div>
+        </div>
+
         <p class="note" id="book-note">Loading books...</p>
         <div class="grid" id="book-list"></div>
       </div>
     </section>
   </main>
 
-  <footer>
-    <div class="wrap">
-      <span>&copy; 2026 Bookshelf</span>
-      <div class="links">
-        <a href="#">Terms</a>
-        <a href="#">Privacy</a>
-        <a href="#">Contact</a>
-      </div>
-    </div>
-  </footer>
+  <div id="site-footer"></div>
 
+  <script src="site.js"></script>
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-    import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
-
-    // These settings tell the page which Firebase project to talk to.
-    const firebaseConfig = {
-      apiKey: "AIzaSyBYkOERyILn2ikGJVM8-dqkMaew17c9n6U",
-      authDomain: "e-books-store-7e6ae.firebaseapp.com",
-      projectId: "e-books-store-7e6ae",
-      storageBucket: "e-books-store-7e6ae.firebasestorage.app",
-      messagingSenderId: "881233235481",
-      appId: "1:881233235481:web:041c102d14363fdf5b2488"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+    import { db, collection, query, where, getDocs, make, makeCover, formatPrice } from "./store.js";
 
     const list = document.getElementById("book-list");
     const note = document.getElementById("book-note");
+    const chips = document.getElementById("chips");
+    const search = document.getElementById("search");
 
-    // Matches the "cover" colour name in the database to a colour style above.
-    const coverStyles = { teal: "c-teal", navy: "c-navy", gold: "c-gold", rust: "c-rust" };
+    let allBooks = [];
+    let activeCategory = "All";
 
-    // Small helper: makes one page element, optionally with a CSS class and text.
-    function make(tag, className, text) {
-      const node = document.createElement(tag);
-      if (className) node.className = className;
-      if (text !== undefined) node.textContent = text;
-      return node;
-    }
-
-    // Builds one book card from one database entry.
+    // Builds one book card.
     function makeCard(book) {
-      const title = book.title || "Untitled";
-      const author = book.author || "";
-
       const card = make("article", "book");
 
-      const cover = make("div", "cover " + (coverStyles[book.cover] || "c-teal"));
-      cover.append(make("span", "", title), make("small", "", author));
+      const coverLink = make("a", "cover-link");
+      coverLink.href = "book.html?id=" + encodeURIComponent(book.id);
+      coverLink.append(makeCover(book));
+
+      const titleLink = make("a", "", book.title || "Untitled");
+      titleLink.href = "book.html?id=" + encodeURIComponent(book.id);
+      const title = make("h3");
+      title.append(titleLink);
 
       const row = make("div", "row");
-      const price = make("span", "price", "UGX " + Number(book.price || 0).toLocaleString("en-US"));
       const buy = make("a", "buy", "Buy");
-      buy.href = "#";
-      row.append(price, buy);
+      buy.href = "checkout.html?id=" + encodeURIComponent(book.id);
+      row.append(make("span", "price", formatPrice(book.price)), buy);
 
-      card.append(cover, make("h3", "", title), make("p", "author", author), row);
+      card.append(coverLink, title, make("p", "author", book.author || ""), row);
       return card;
     }
 
-    // Fetches the published books from the database and shows them.
+    // Shows the books that match the search box and the chosen category.
+    function showBooks() {
+      const words = search.value.trim().toLowerCase();
+
+      const shown = allBooks.filter(function (book) {
+        const inCategory = activeCategory === "All" || book.category === activeCategory;
+        const text = ((book.title || "") + " " + (book.author || "")).toLowerCase();
+        return inCategory && text.includes(words);
+      });
+
+      list.innerHTML = "";
+      note.textContent = shown.length ? "" : "No books match your search.";
+      shown.forEach(function (book) { list.append(makeCard(book)); });
+    }
+
+    // Builds the category buttons from the categories your books use.
+    function showCategoryButtons() {
+      const names = [];
+      allBooks.forEach(function (book) {
+        if (book.category && !names.includes(book.category)) names.push(book.category);
+      });
+
+      chips.innerHTML = "";
+      if (names.length < 2) return;
+
+      ["All"].concat(names).forEach(function (name) {
+        const chip = make("button", "chip", name);
+        chip.type = "button";
+        chip.setAttribute("aria-pressed", name === activeCategory ? "true" : "false");
+        chip.addEventListener("click", function () {
+          activeCategory = name;
+          showCategoryButtons();
+          showBooks();
+        });
+        chips.append(chip);
+      });
+    }
+
     async function loadBooks() {
       try {
         const booksQuery = query(collection(db, "books"), where("published", "==", true));
         const snapshot = await getDocs(booksQuery);
 
-        list.innerHTML = "";
+        allBooks = [];
+        snapshot.forEach(function (entry) {
+          allBooks.push(Object.assign({ id: entry.id }, entry.data()));
+        });
 
-        if (snapshot.empty) {
+        if (allBooks.length === 0) {
           note.textContent = "No books yet. Check back soon.";
           return;
         }
 
-        note.textContent = "";
-        snapshot.forEach(function (entry) {
-          list.append(makeCard(entry.data()));
-        });
+        showCategoryButtons();
+        showBooks();
       } catch (error) {
         console.error(error);
         note.textContent = "The books could not be loaded. Please refresh the page.";
       }
     }
 
+    search.addEventListener("input", showBooks);
     loadBooks();
   </script>
-
 </body>
 </html>

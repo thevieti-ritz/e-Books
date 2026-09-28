@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Book</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body data-title="Book">
+  <div id="site-header"></div>
+
+  <main>
+    <div class="wrap">
+      <a class="back" href="index.html#books">&larr; All books</a>
+      <p class="note" id="book-note">Loading book...</p>
+      <div id="book-detail"></div>
+    </div>
+  </main>
+
+  <div id="site-footer"></div>
+
+  <script src="site.js"></script>
+  <script type="module">
+    import { db, doc, getDoc, make, makeCover, formatPrice } from "./store.js";
+
+    const note = document.getElementById("book-note");
+    const detail = document.getElementById("book-detail");
+    const bookId = new URLSearchParams(window.location.search).get("id");
+
+    async function loadBook() {
+      if (!bookId) {
+        note.textContent = "That book could not be found.";
+        return;
+      }
+
+      try {
+        const snapshot = await getDoc(doc(db, "books", bookId));
+
+        if (!snapshot.exists() || snapshot.data().published !== true) {
+          note.textContent = "That book could not be found.";
+          return;
+        }
+
+        const book = snapshot.data();
+        note.textContent = "";
+        document.title = (book.title || "Book") + " | " + window.SITE.name;
+
+        const box = make("section", "detail");
+        box.append(makeCover(book));
+
+        const info = make("div");
+        info.append(make("h1", "", book.title || "Untitled"));
+
+        const meta = book.author ? "By " + book.author : "";
+        info.append(make("p", "meta", book.category ? meta + " · " + book.category : meta));
+        info.append(make("p", "price-big", formatPrice(book.price)));
+
+        if (book.description) info.append(make("p", "desc", book.description));
+
+        const actions = make("div", "actions");
+        const buy = make("a", "btn", "Buy now");
+        buy.href = "checkout.html?id=" + encodeURIComponent(bookId);
+        actions.append(buy);
+
+        // Only shown if the book has a "sampleUrl" field in the database.
+        if (book.sampleUrl) {
+          const sample = make("a", "btn-outline", "Read a free sample");
+          sample.href = book.sampleUrl;
+          sample.target = "_blank";
+          sample.rel = "noopener";
+          actions.append(sample);
+        }
+
+        info.append(actions);
+        info.append(make("p", "perk", "You can download your book as soon as you have paid."));
+
+        box.append(info);
+        detail.append(box);
+      } catch (error) {
+        console.error(error);
+        note.textContent = "The book could not be loaded. Please refresh the page.";
+      }
+    }
+
+    loadBook();
+  </script>
+</body>
+</html>
