@@ -53,7 +53,7 @@
 
   <script src="site.js"></script>
   <script type="module">
-    import { db, doc, getDoc, make, makeCover, formatPrice } from "./store.js";
+    import { fetchBook, make, makeCover, formatPrice } from "./store.js";
 
     const note = document.getElementById("book-note");
     const checkout = document.getElementById("checkout");
@@ -82,14 +82,13 @@
       }
 
       try {
-        const snapshot = await getDoc(doc(db, "books", bookId));
+        currentBook = await fetchBook(bookId);
 
-        if (!snapshot.exists() || snapshot.data().published !== true) {
+        if (!currentBook) {
           note.textContent = "That book could not be found.";
           return;
         }
 
-        currentBook = snapshot.data();
         note.textContent = "";
         checkout.hidden = false;
 

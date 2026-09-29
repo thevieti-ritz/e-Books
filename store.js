@@ -1,20 +1,5 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-import { getFirestore } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
-
-// Lets the pages use these database tools without importing them again.
-export { collection, query, where, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
-
-// These settings tell the pages which Firebase project to talk to.
-const firebaseConfig = {
-  apiKey: "AIzaSyBYkOERyILn2ikGJVM8-dqkMaew17c9n6U",
-  authDomain: "e-books-store-7e6ae.firebaseapp.com",
-  projectId: "e-books-store-7e6ae",
-  storageBucket: "e-books-store-7e6ae.firebasestorage.app",
-  messagingSenderId: "881233235481",
-  appId: "1:881233235481:web:041c102d14363fdf5b2488"
-};
-
-export const db = getFirestore(initializeApp(firebaseConfig));
+// The address of your hidden helper. Every page asks this address for book data.
+export const API_BASE = "https://ebook-store-helper.dbernardinvestments.workers.dev";
 
 // Makes one page element, optionally with a CSS class and some text.
 export function make(tag, className, text) {
@@ -43,4 +28,19 @@ export function makeCover(book, withText) {
     cover.append(make("span", "", book.title || "Untitled"), make("small", "", book.author || ""));
   }
   return cover;
+}
+
+// Asks the helper for every published book.
+export async function fetchBooks() {
+  const response = await fetch(API_BASE + "/books");
+  if (!response.ok) throw new Error("Could not load books");
+  return response.json();
+}
+
+// Asks the helper for one book. Returns null if it doesn't exist.
+export async function fetchBook(id) {
+  const response = await fetch(API_BASE + "/books/" + encodeURIComponent(id));
+  if (response.status === 404) return null;
+  if (!response.ok) throw new Error("Could not load book");
+  return response.json();
 }

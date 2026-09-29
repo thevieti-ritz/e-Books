@@ -46,7 +46,7 @@
 
   <script src="site.js"></script>
   <script type="module">
-    import { db, collection, query, where, getDocs, make, makeCover, formatPrice } from "./store.js";
+    import { fetchBooks, make, makeCover, formatPrice } from "./store.js";
 
     const list = document.getElementById("book-list");
     const note = document.getElementById("book-note");
@@ -118,13 +118,7 @@
 
     async function loadBooks() {
       try {
-        const booksQuery = query(collection(db, "books"), where("published", "==", true));
-        const snapshot = await getDocs(booksQuery);
-
-        allBooks = [];
-        snapshot.forEach(function (entry) {
-          allBooks.push(Object.assign({ id: entry.id }, entry.data()));
-        });
+        allBooks = await fetchBooks();
 
         if (allBooks.length === 0) {
           note.textContent = "No books yet. Check back soon.";

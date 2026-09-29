@@ -22,7 +22,7 @@
 
   <script src="site.js"></script>
   <script type="module">
-    import { db, doc, getDoc, make, makeCover, formatPrice } from "./store.js";
+    import { fetchBook, make, makeCover, formatPrice } from "./store.js";
 
     const note = document.getElementById("book-note");
     const detail = document.getElementById("book-detail");
@@ -35,14 +35,13 @@
       }
 
       try {
-        const snapshot = await getDoc(doc(db, "books", bookId));
+        const book = await fetchBook(bookId);
 
-        if (!snapshot.exists() || snapshot.data().published !== true) {
+        if (!book) {
           note.textContent = "That book could not be found.";
           return;
         }
 
-        const book = snapshot.data();
         note.textContent = "";
         document.title = (book.title || "Book") + " | " + window.SITE.name;
 
