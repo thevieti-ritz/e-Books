@@ -237,7 +237,15 @@
         editBtn.type = "button";
         editBtn.addEventListener("click", function () { startEdit(book); });
 
-        row.append(cover, info, badge, editBtn);
+        const deleteBtn = document.createElement("button");
+        deleteBtn.className = "btn-outline";
+        deleteBtn.textContent = "Delete";
+        deleteBtn.type = "button";
+        deleteBtn.style.borderColor = "var(--error)";
+        deleteBtn.style.color = "var(--error)";
+        deleteBtn.addEventListener("click", function () { deleteBook(book); });
+
+        row.append(cover, info, badge, editBtn, deleteBtn);
         bookList.append(row);
       });
     }
@@ -276,7 +284,24 @@
     }
 
     cancelButton.addEventListener("click", resetForm);
+    // ---------- Delete a book ----------
+    async function deleteBook(book) {
+      const confirmed = confirm('Delete "' + book.title + '"? This cannot be undone.');
+      if (!confirmed) return;
 
+      const response = await adminFetch("/admin/books/" + encodeURIComponent(book.id), {
+        method: "DELETE"
+      });
+
+      if (!response.ok) {
+        alert("Could not delete that book. Please try again.");
+        return;
+      }
+
+      if (editingId === book.id) resetForm();
+      loadBooks();
+    }
+    
     // ---------- Save (create or update) ----------
     saveButton.addEventListener("click", async function () {
       if (!fTitle.value || !fPrice.value) {
