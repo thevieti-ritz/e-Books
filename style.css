@@ -130,6 +130,27 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .c-navy { background: var(--ink); }
 .c-gold { background: var(--ember); color: var(--ink); }
 .c-rust { background: #8B4A3D; }
+/* ---------- How it works ---------- */
+.how { padding: 8px 0 40px; }
+.how ol {
+  list-style: none;
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px;
+}
+.how li {
+  background: var(--paper-card); border: 1px solid var(--line);
+  border-radius: 16px; padding: 24px 22px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.how .step-num {
+  font-family: "Fraunces", Georgia, serif; font-size: 1.6rem; font-weight: 600;
+  color: var(--ember-dark);
+}
+.how h3 { font-size: 1.05rem; font-weight: 600; }
+.how p { color: var(--ink-soft); font-size: 0.95rem; }
+
+@media (max-width: 720px) {
+  .how ol { grid-template-columns: 1fr; }
+}
 
 /* ---------- Book list (home page) ---------- */
 .section { padding: 28px 0 80px; }
