@@ -5,6 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Checkout</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    #waiting .btn, #waiting h2 {
+      animation: gentle-pulse 1.8s ease-in-out infinite;
+    }
+    @keyframes gentle-pulse {
+      0%, 100% { opacity: 1; } 50% { opacity: 0.55; }
+    }
+    #success {
+      opacity: 0; transform: scale(0.96);
+      animation: success-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    @keyframes success-in { to { opacity: 1; transform: scale(1); } }
+    @media (prefers-reduced-motion: reduce) {
+      #waiting .btn, #waiting h2, #success { animation: none; opacity: 1; transform: none; }
+    }
+  </style>
 </head>
 
 <body data-title="Checkout">
@@ -49,7 +65,7 @@
 
       <!-- Shown while we wait for MarzPay's confirmation. -->
       <div class="panel" id="waiting" hidden style="max-width:480px;margin:0 auto;text-align:center;">
-        <h2>Check your phone</h2>
+        <h2 style="animation: gentle-pulse 1.8s ease-in-out infinite;">Check your phone</h2>
         <p id="waiting-text">Approve the payment prompt on your phone to complete the purchase.</p>
       </div>
 
