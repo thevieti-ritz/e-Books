@@ -24,8 +24,7 @@ export function formatPrice(amount) {
 // Turns a stored cover image key into the address that serves it.
 export function coverImageUrl(book) {
   if (!book.coverImage) return null;
-  // The stored value already includes "covers/" at the front.
-  return API_BASE + "/" + book.coverImage;
+  return API_BASE + "/covers/" + book.coverImage;
 }
 
 // Builds a book cover. Pass false as the second value for a cover with no words on it.
