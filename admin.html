@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin | Bookshelf</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .admin-wrap { max-width: 900px; margin: 0 auto; padding: 32px 20px 80px; }
+    .admin-wrap h1 { margin-bottom: 24px; }
+    .book-row {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 0; border-bottom: 1px solid var(--line);
+    }
+    .book-row .cover { width: 44px; padding: 0; flex-shrink: 0; }
+    .book-row .info { flex: 1; }
+    .book-row .info strong { display: block; }
+    .book-row .info span { color: var(--muted); font-size: 0.9rem; }
+    .badge {
+      display: inline-block; font-size: 0.78rem; padding: 2px 8px;
+      border-radius: 999px; background: #E6F4F1; color: var(--teal-dark);
+    }
+    .badge.off { background: #F1E7DC; color: var(--rust); }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 600px) { .grid-2 { grid-template-columns: 1fr; } }
+  </style>
+</head>
+
+<body>
+  <div class="admin-wrap">
+    <h1>Bookshelf admin</h1>
+
+    <!-- Shown until the correct password is entered. -->
+    <div class="panel" id="login-box">
+      <h2>Enter admin password</h2>
+      <div class="field">
+        <input id="password-input" type="password" placeholder="Admin password">
+      </div>
+      <button class="btn" id="login-button">Enter</button>
+      <p class="msg error" id="login-error" hidden></p>
+    </div>
+
+    <!-- The actual admin tools, hidden until logged in. -->
+    <div id="admin-area" hidden>
+      <div class="panel" style="margin-bottom:28px;">
+        <h2 id="form-title">Add a new book</h2>
+
+        <div class="grid-2">
+          <div class="field">
+            <label for="f-title">Title</label>
+            <input id="f-title" type="text" required>
+          </div>
+          <div class="field">
+            <label for="f-author">Author</label>
+            <input id="f-author" type="text">
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label for="f-price">Price (UGX)</label>
+            <input id="f-price" type="number" min="500" step="1" required>
+          </div>
+          <div class="field">
+            <label for="f-category">Category</label>
+            <input id="f-category" type="text" placeholder="e.g. Fiction, Business">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="f-description">Description</label>
+          <input id="f-description" type="text">
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label for="f-cover">Cover colour</label>
+            <select id="f-cover" style="width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:8px;font:inherit;">
+              <option value="teal">Teal</option>
+              <option value="navy">Navy</option>
+              <option value="gold">Gold</option>
+              <option value="rust">Rust</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="f-sample">Free sample link (optional)</label>
+            <input id="f-sample" type="url" placeholder="https://...">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="f-file">Book file (PDF, ePub, etc.)</label>
+          <input id="f-file" type="file">
+          <p class="hint" id="file-hint">Leave empty to keep the current file when editing.</p>
+        </div>
+
+        <label class="check">
+          <input type="checkbox" id="f-published" checked>
+          <span>Published (visible in the store)</span>
+        </label>
+
+        <div style="display:flex; gap:10px; margin-top:10px;">
+          <button class="btn" id="save-button">Save book</button>
+          <button class="btn-outline" id="cancel-button" type="button" hidden>Cancel edit</button>
+        </div>
+        <p class="msg" id="form-msg" hidden></p>
+      </div>
+
+      <div class="panel">
+        <h2>Your books</h2>
+        <p class="note" id="list-note">Loading...</p>
+        <div id="book-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    const API_BASE = "https://ebook-store-helper.dbernardinvestments.workers.dev";
+
+    let adminPassword = "";
+    let allBooks = [];
+    let editingId = null;
+
+    const loginBox = document.getElementById("login-box");
+    const adminArea = document.getElementById("admin-area");
+    const loginError = document.getElementById("login-error");
+
+    const formTitle = document.getElementById("form-title");
+    const fTitle = document.getElementById("f-title");
+    const fAuthor = document.getElementById("f-author");
+    const fPrice = document.getElementById("f-price");
+    const fCategory = document.getElementById("f-category");
+    const fDescription = document.getElementById("f-description");
+    const fCover = document.getElementById("f-cover");
+    const fSample = document.getElementById("f-sample");
+    const fFile = document.getElementById("f-file");
+    const fPublished = document.getElementById("f-published");
+    const saveButton = document.getElementById("save-button");
+    const cancelButton = document.getElementById("cancel-button");
+    const formMsg = document.getElementById("form-msg");
+
+    const listNote = document.getElementById("list-note");
+    const bookList = document.getElementById("book-list");
+
+    function showFormMessage(text, isError) {
+      formMsg.textContent = text;
+      formMsg.className = isError ? "msg error" : "msg";
+      formMsg.hidden = false;
+    }
+
+    async function adminFetch(path, options) {
+      options = options || {};
+      options.headers = Object.assign({}, options.headers, { "X-Admin-Password": adminPassword });
+      return fetch(API_BASE + path, options);
+    }
+
+    // ---------- Login ----------
+    document.getElementById("login-button").addEventListener("click", async function () {
+      const tryPassword = document.getElementById("password-input").value;
+      loginError.hidden = true;
+
+      const response = await fetch(API_BASE + "/admin/books", {
+        headers: { "X-Admin-Password": tryPassword }
+      });
+
+      if (!response.ok) {
+        loginError.textContent = "Wrong password. Try again.";
+        loginError.hidden = false;
+        return;
+      }
+
+      adminPassword = tryPassword;
+      loginBox.hidden = true;
+      adminArea.hidden = false;
+      loadBooks();
+    });
+
+    // ---------- Load and show the book list ----------
+    async function loadBooks() {
+      listNote.textContent = "Loading...";
+      const response = await adminFetch("/admin/books");
+
+      if (!response.ok) {
+        listNote.textContent = "Could not load books.";
+        return;
+      }
+
+      allBooks = await response.json();
+      bookList.innerHTML = "";
+
+      if (allBooks.length === 0) {
+        listNote.textContent = "No books yet. Add your first one above.";
+        return;
+      }
+
+      listNote.textContent = "";
+      allBooks.forEach(function (book) {
+        const row = document.createElement("div");
+        row.className = "book-row";
+
+        const cover = document.createElement("div");
+        cover.className = "cover c-" + (book.cover || "teal");
+
+        const info = document.createElement("div");
+        info.className = "info";
+        const strong = document.createElement("strong");
+        strong.textContent = book.title;
+        const span = document.createElement("span");
+        span.textContent = "UGX " + Number(book.price).toLocaleString("en-US") + (book.author ? " · " + book.author : "");
+        info.append(strong, span);
+
+        const badge = document.createElement("span");
+        badge.className = "badge" + (book.published ? "" : " off");
+        badge.textContent = book.published ? "Published" : "Hidden";
+
+        const editBtn = document.createElement("button");
+        editBtn.className = "btn-outline";
+        editBtn.textContent = "Edit";
+        editBtn.type = "button";
+        editBtn.addEventListener("click", function () { startEdit(book); });
+
+        row.append(cover, info, badge, editBtn);
+        bookList.append(row);
+      });
+    }
+
+    // ---------- Fill the form to edit a book ----------
+    function startEdit(book) {
+      editingId = book.id;
+      formTitle.textContent = "Edit: " + book.title;
+      fTitle.value = book.title || "";
+      fAuthor.value = book.author || "";
+      fPrice.value = book.price || "";
+      fCategory.value = book.category || "";
+      fDescription.value = book.description || "";
+      fCover.value = book.cover || "teal";
+      fSample.value = book.sampleUrl || "";
+      fFile.value = "";
+      fPublished.checked = !!book.published;
+      cancelButton.hidden = false;
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function resetForm() {
+      editingId = null;
+      formTitle.textContent = "Add a new book";
+      fTitle.value = "";
+      fAuthor.value = "";
+      fPrice.value = "";
+      fCategory.value = "";
+      fDescription.value = "";
+      fCover.value = "teal";
+      fSample.value = "";
+      fFile.value = "";
+      fPublished.checked = true;
+      cancelButton.hidden = true;
+    }
+
+    cancelButton.addEventListener("click", resetForm);
+
+    // ---------- Save (create or update) ----------
+    saveButton.addEventListener("click", async function () {
+      if (!fTitle.value || !fPrice.value) {
+        showFormMessage("Title and price are required.", true);
+        return;
+      }
+
+      saveButton.disabled = true;
+      showFormMessage("Saving...", false);
+
+      const bookData = {
+        title: fTitle.value,
+        author: fAuthor.value,
+        price: Number(fPrice.value),
+        category: fCategory.value,
+        description: fDescription.value,
+        cover: fCover.value,
+        sampleUrl: fSample.value || null,
+        published: fPublished.checked
+      };
+
+      try {
+        let bookId = editingId;
+
+        if (bookId) {
+          // Keep the existing fileKey unless a new file is uploaded below.
+          const existing = allBooks.find(function (b) { return b.id === bookId; });
+          bookData.fileKey = existing ? existing.fileKey : null;
+
+          const response = await adminFetch("/admin/books/" + encodeURIComponent(bookId), {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(bookData)
+          });
+          if (!response.ok) throw new Error("Could not save changes.");
+        } else {
+          const response = await adminFetch("/admin/books", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(bookData)
+          });
+          if (!response.ok) throw new Error("Could not create the book.");
+          const result = await response.json();
+          bookId = result.id;
+        }
+
+        // If a file was chosen, upload it and attach it to the book.
+        if (fFile.files.length > 0) {
+          const file = fFile.files[0];
+          const extension = file.name.includes(".") ? file.name.split(".").pop() : "bin";
+          const fileKey = bookId + "." + extension;
+
+          const uploadResponse = await adminFetch("/admin/upload/" + encodeURIComponent(fileKey), {
+            method: "PUT",
+            headers: { "Content-Type": file.type || "application/octet-stream" },
+            body: file
+          });
+          if (!uploadResponse.ok) throw new Error("Book saved, but the file upload failed.");
+
+          await adminFetch("/admin/books/" + encodeURIComponent(bookId), {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(Object.assign({}, bookData, { fileKey: fileKey }))
+          });
+        }
+
+        showFormMessage("Saved.", false);
+        resetForm();
+        loadBooks();
+      } catch (error) {
+        console.error(error);
+        showFormMessage(error.message || "Something went wrong.", true);
+      } finally {
+        saveButton.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
