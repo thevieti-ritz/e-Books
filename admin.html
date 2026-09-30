@@ -301,7 +301,7 @@
       if (editingId === book.id) resetForm();
       loadBooks();
     }
-    
+
     // ---------- Save (create or update) ----------
     saveButton.addEventListener("click", async function () {
       if (!fTitle.value || !fPrice.value) {
@@ -357,7 +357,7 @@
           const extension = file.name.includes(".") ? file.name.split(".").pop() : "bin";
           const fileKey = bookId + "." + extension;
 
-          const uploadResponse = await adminFetch("/admin/upload/" + encodeURIComponent(fileKey), {
+          const uploadResponse = await adminFetch("/admin/upload/" + fileKey.split("/").map(encodeURIComponent).join("/"), {
             method: "PUT",
             headers: { "Content-Type": file.type || "application/octet-stream" },
             body: file
@@ -375,7 +375,7 @@
           const extension = image.name.includes(".") ? image.name.split(".").pop() : "jpg";
           const coverKey = "covers/" + bookId + "." + extension;
 
-          const uploadResponse = await adminFetch("/admin/upload/" + encodeURIComponent(coverKey), {
+          const uploadResponse = await adminFetch("/admin/upload/" + coverKey.split("/").map(encodeURIComponent).join("/"), {
             method: "PUT",
             headers: { "Content-Type": image.type || "image/jpeg" },
             body: image
