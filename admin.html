@@ -89,6 +89,12 @@
         </div>
 
         <div class="field">
+          <label for="f-cover-image">Cover image (JPG or PNG)</label>
+          <input id="f-cover-image" type="file" accept="image/*">
+          <p class="hint">Leave empty to keep the current cover, or use a colour block instead.</p>
+        </div>
+
+        <div class="field">
           <label for="f-file">Book file (PDF, ePub, etc.)</label>
           <input id="f-file" type="file">
           <p class="hint" id="file-hint">Leave empty to keep the current file when editing.</p>
@@ -200,6 +206,18 @@
 
         const cover = document.createElement("div");
         cover.className = "cover c-" + (book.cover || "teal");
+        cover.style.overflow = "hidden";
+        if (book.coverImage) {
+          cover.style.padding = "0";
+          const img = document.createElement("img");
+          img.src = API_BASE + "/covers/" + book.coverImage;
+          img.alt = book.title;
+          img.style.width = "100%";
+          img.style.height = "100%";
+          img.style.objectFit = "cover";
+          img.style.display = "block";
+          cover.append(img);
+        }
 
         const info = document.createElement("div");
         info.className = "info";
@@ -252,6 +270,7 @@
       fCover.value = "teal";
       fSample.value = "";
       fFile.value = "";
+      document.getElementById("f-cover-image").value = "";
       fPublished.checked = true;
       cancelButton.hidden = true;
     }
@@ -281,12 +300,13 @@
 
       try {
         let bookId = editingId;
+        const existing = bookId ? allBooks.find(function (b) { return b.id === bookId; }) : null;
+
+        // Keep the existing file and cover image unless new ones are chosen.
+        bookData.fileKey = existing ? existing.fileKey : null;
+        bookData.coverImage = existing ? existing.coverImage : null;
 
         if (bookId) {
-          // Keep the existing fileKey unless a new file is uploaded below.
-          const existing = allBooks.find(function (b) { return b.id === bookId; });
-          bookData.fileKey = existing ? existing.fileKey : null;
-
           const response = await adminFetch("/admin/books/" + encodeURIComponent(bookId), {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
@@ -304,7 +324,9 @@
           bookId = result.id;
         }
 
-        // If a file was chosen, upload it and attach it to the book.
+        let needsFollowUpSave = false;
+
+        // If a book file was chosen, upload it and attach it.
         if (fFile.files.length > 0) {
           const file = fFile.files[0];
           const extension = file.name.includes(".") ? file.name.split(".").pop() : "bin";
@@ -317,10 +339,33 @@
           });
           if (!uploadResponse.ok) throw new Error("Book saved, but the file upload failed.");
 
+          bookData.fileKey = fileKey;
+          needsFollowUpSave = true;
+        }
+
+        // If a cover image was chosen, upload it too.
+        const coverFileInput = document.getElementById("f-cover-image");
+        if (coverFileInput.files.length > 0) {
+          const image = coverFileInput.files[0];
+          const extension = image.name.includes(".") ? image.name.split(".").pop() : "jpg";
+          const coverKey = "covers/" + bookId + "." + extension;
+
+          const uploadResponse = await adminFetch("/admin/upload/" + encodeURIComponent(coverKey), {
+            method: "PUT",
+            headers: { "Content-Type": image.type || "image/jpeg" },
+            body: image
+          });
+          if (!uploadResponse.ok) throw new Error("Book saved, but the cover image upload failed.");
+
+          bookData.coverImage = coverKey;
+          needsFollowUpSave = true;
+        }
+
+        if (needsFollowUpSave) {
           await adminFetch("/admin/books/" + encodeURIComponent(bookId), {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(Object.assign({}, bookData, { fileKey: fileKey }))
+            body: JSON.stringify(bookData)
           });
         }
 

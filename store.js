@@ -21,9 +21,31 @@ export function formatPrice(amount) {
   return "UGX " + Number(amount || 0).toLocaleString("en-US");
 }
 
+// Turns a stored cover image key into the address that serves it.
+export function coverImageUrl(book) {
+  if (!book.coverImage) return null;
+  return API_BASE + "/covers/" + book.coverImage;
+}
+
 // Builds a book cover. Pass false as the second value for a cover with no words on it.
 export function makeCover(book, withText) {
   const cover = make("div", "cover " + coverClass(book.cover));
+
+  const imageUrl = coverImageUrl(book);
+  if (imageUrl) {
+    cover.style.padding = "0";
+    cover.style.overflow = "hidden";
+    const img = make("img");
+    img.src = imageUrl;
+    img.alt = book.title || "Book cover";
+    img.style.width = "100%";
+    img.style.height = "100%";
+    img.style.objectFit = "cover";
+    img.style.display = "block";
+    cover.append(img);
+    return cover;
+  }
+
   if (withText !== false) {
     cover.append(make("span", "", book.title || "Untitled"), make("small", "", book.author || ""));
   }
