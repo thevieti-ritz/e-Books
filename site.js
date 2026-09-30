@@ -2,7 +2,7 @@
 // YOUR STORE DETAILS: change the words between the quotation marks.
 // ------------------------------------------------------------
 window.SITE = {
-  name: "E-Books Store",
+  name: "BookCloud",
   tagline: "Any softcopy book you want, delivered to your phone instantly.",
   email: "dbernardinvestments@gmail.com",
   whatsapp: "256765880900"   // Optional. Digits only, with country code, e.g. 2567XXXXXXXX
@@ -20,6 +20,13 @@ window.SITE = {
   document.title = pageTitle
     ? pageTitle + " | " + site.name
     : site.name + " | " + site.tagline;
+  // Adds the site's icon to the browser tab, so every page gets it
+  // without needing to edit each page's <head> by hand.
+  var iconLink = document.createElement("link");
+  iconLink.rel = "icon";
+  iconLink.type = "image/svg+xml";
+  iconLink.href = "favicon.svg";
+  document.head.appendChild(iconLink);
 
   // Top bar
   var header = document.getElementById("site-header");
