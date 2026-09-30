@@ -46,6 +46,19 @@
           <div class="summary-row"><span>Total</span><span id="summary-total"></span></div>
         </aside>
       </div>
+
+      <!-- Shown while we wait for MarzPay's confirmation. -->
+      <div class="panel" id="waiting" hidden style="max-width:480px;margin:0 auto;text-align:center;">
+        <h2>Check your phone</h2>
+        <p id="waiting-text">Approve the payment prompt on your phone to complete the purchase.</p>
+      </div>
+
+      <!-- Shown once the payment is confirmed. -->
+      <div class="panel" id="success" hidden style="max-width:480px;margin:0 auto;text-align:center;">
+        <h2>Payment received</h2>
+        <p>Your download is ready.</p>
+        <a class="btn" id="download-link" href="#">Download your book</a>
+      </div>
     </div>
   </main>
 
@@ -53,11 +66,15 @@
 
   <script src="site.js"></script>
   <script type="module">
-    import { fetchBook, make, makeCover, formatPrice } from "./store.js";
+    import { API_BASE, fetchBook, make, makeCover, formatPrice } from "./store.js";
 
     const note = document.getElementById("book-note");
     const checkout = document.getElementById("checkout");
+    const waiting = document.getElementById("waiting");
+    const waitingText = document.getElementById("waiting-text");
+    const success = document.getElementById("success");
     const form = document.getElementById("pay-form");
+    const payButton = document.getElementById("pay-button");
     const message = document.getElementById("form-msg");
     const bookId = new URLSearchParams(window.location.search).get("id");
 
@@ -98,23 +115,91 @@
         summary.append(makeCover(currentBook, false), words);
 
         document.getElementById("summary-total").textContent = formatPrice(currentBook.price);
-        document.getElementById("pay-button").textContent = "Pay " + formatPrice(currentBook.price);
+        payButton.textContent = "Pay " + formatPrice(currentBook.price);
       } catch (error) {
         console.error(error);
         note.textContent = "Your order could not be loaded. Please refresh the page.";
       }
     }
 
-    form.addEventListener("submit", function (event) {
+    // Asks the helper, every few seconds, whether the order is paid yet.
+    async function waitForPayment(orderId) {
+      const maxAttempts = 24; // about 2 minutes, checking every 5 seconds
+      let attempts = 0;
+
+      const timer = setInterval(async function () {
+        attempts++;
+
+        try {
+          const response = await fetch(API_BASE + "/orders/" + encodeURIComponent(orderId));
+          const order = await response.json();
+
+          if (order.status === "paid") {
+            clearInterval(timer);
+            waiting.hidden = true;
+            success.hidden = false;
+            document.getElementById("download-link").href =
+              API_BASE + "/download/" + encodeURIComponent(order.id) + "/" + encodeURIComponent(order.downloadToken || "");
+            return;
+          }
+
+          if (order.status === "failed") {
+            clearInterval(timer);
+            waiting.hidden = true;
+            checkout.hidden = false;
+            showMessage("The payment was not completed. Please try again.", true);
+            payButton.disabled = false;
+            return;
+          }
+        } catch (error) {
+          console.error(error);
+        }
+
+        if (attempts >= maxAttempts) {
+          clearInterval(timer);
+          waitingText.textContent =
+            "This is taking longer than expected. If you approved the payment, please contact us and we will sort it out.";
+        }
+      }, 5000);
+    }
+
+    form.addEventListener("submit", async function (event) {
       event.preventDefault();
 
-      if (!isUgandanNumber(document.getElementById("phone").value)) {
+      const phone = document.getElementById("phone").value;
+      const email = document.getElementById("email").value;
+
+      if (!isUgandanNumber(phone)) {
         showMessage("Enter a valid MTN or Airtel number, like 0771234567.", true);
         return;
       }
 
-      // Payment will be connected here later.
-      showMessage("Payments are not switched on yet. Please check back soon.", false);
+      payButton.disabled = true;
+      showMessage("Starting your payment...", false);
+
+      try {
+        const response = await fetch(API_BASE + "/checkout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ bookId: bookId, phone: phone, email: email })
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          showMessage(result.error || "Something went wrong. Please try again.", true);
+          payButton.disabled = false;
+          return;
+        }
+
+        checkout.hidden = true;
+        waiting.hidden = false;
+        waitForPayment(result.orderId);
+      } catch (error) {
+        console.error(error);
+        showMessage("Something went wrong. Please check your connection and try again.", true);
+        payButton.disabled = false;
+      }
     });
 
     loadOrder();
