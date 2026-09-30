@@ -1,16 +1,15 @@
-@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Instrument+Sans:wght@400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600&display=swap");
 
 :root {
-  --page: #F4F6F8;
-  --ink: #0F1B2D;
-  --muted: #55627A;
-  --teal: #0B7A75;
-  --teal-dark: #096560;
-  --navy: #24365A;
-  --gold: #F2B233;
-  --rust: #B8420F;
+  --ink: #1C1330;
+  --ink-soft: #46395F;
+  --paper: #F6EFE1;
+  --paper-card: #FBF7EC;
+  --ember: #D98A3D;
+  --ember-dark: #B8712E;
+  --moss: #3F6B52;
+  --line: #E4D9C4;
   --white: #FFFFFF;
-  --line: #DDE2EA;
   --error: #B42318;
 }
 
@@ -18,9 +17,14 @@
 
 html { scroll-behavior: smooth; }
 
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}
+
 body {
-  font-family: "Instrument Sans", Arial, sans-serif;
-  background: var(--page);
+  font-family: "Work Sans", Arial, sans-serif;
+  background: var(--paper);
   color: var(--ink);
   line-height: 1.6;
   min-height: 100vh;
@@ -31,180 +35,218 @@ body {
 main { flex: 1; }
 
 h1, h2, h3 {
-  font-family: "Bricolage Grotesque", Georgia, serif;
-  line-height: 1.15;
+  font-family: "Fraunces", Georgia, serif;
+  font-optical-sizing: auto;
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+  color: var(--ink);
 }
 
 a { color: inherit; text-decoration: none; }
 
-a:focus-visible, button:focus-visible, input:focus-visible {
-  outline: 3px solid var(--gold);
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible {
+  outline: 3px solid var(--ember);
   outline-offset: 3px;
 }
 
-.wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
+.wrap { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
 
 /* ---------- Top bar ---------- */
-.topbar { background: var(--white); border-bottom: 1px solid var(--line); }
+.topbar { background: var(--paper); border-bottom: 1px solid var(--line); }
 .topbar .wrap {
   display: flex; align-items: center; justify-content: space-between;
-  height: 64px;
+  height: 72px;
 }
-.logo { font-family: "Bricolage Grotesque", Georgia, serif; font-weight: 700; font-size: 1.4rem; }
-.nav { display: flex; gap: 24px; font-weight: 500; color: var(--muted); }
-.nav a:hover { color: var(--teal); }
+.logo {
+  font-family: "Fraunces", Georgia, serif;
+  font-weight: 600; font-size: 1.5rem; letter-spacing: -0.01em;
+}
+.nav { display: flex; gap: 28px; font-weight: 500; color: var(--ink-soft); }
+.nav a { position: relative; padding-bottom: 2px; }
+.nav a::after {
+  content: ""; position: absolute; left: 0; right: 100%; bottom: -2px; height: 2px;
+  background: var(--ember); transition: right 0.25s ease;
+}
+.nav a:hover::after { right: 0; }
 
 /* ---------- Buttons ---------- */
 .btn {
-  display: inline-block; background: var(--teal); color: var(--white);
-  padding: 13px 26px; border-radius: 8px; font-weight: 600;
-  border: 0; cursor: pointer; font-family: inherit; font-size: 1rem;
+  display: inline-block; background: var(--ember); color: var(--white);
+  padding: 14px 28px; border-radius: 999px; font-weight: 600;
+  border: 0; cursor: pointer; font-family: "Work Sans", inherit; font-size: 1rem;
+  transition: background 0.2s ease, transform 0.15s ease;
 }
-.btn:hover { background: var(--teal-dark); }
+.btn:hover { background: var(--ember-dark); transform: translateY(-1px); }
+.btn:active { transform: translateY(0); }
 .btn-block { display: block; width: 100%; text-align: center; }
 .btn-outline {
-  display: inline-block; border: 1.5px solid var(--teal); color: var(--teal);
-  padding: 11px 24px; border-radius: 8px; font-weight: 600;
+  display: inline-block; border: 1.5px solid var(--ink); color: var(--ink);
+  padding: 12px 26px; border-radius: 999px; font-weight: 600;
+  transition: background 0.2s ease, color 0.2s ease;
 }
-.btn-outline:hover { background: var(--teal); color: var(--white); }
+.btn-outline:hover { background: var(--ink); color: var(--paper); }
 
 /* ---------- Hero ---------- */
-.hero { padding: 64px 0 56px; }
+.hero { padding: 80px 0 64px; overflow: hidden; }
 .hero .wrap {
   display: grid; grid-template-columns: 1.1fr 0.9fr;
-  gap: 40px; align-items: center;
+  gap: 48px; align-items: center;
 }
-.hero h1 { font-size: clamp(2.2rem, 5vw, 3.4rem); font-weight: 700; margin-bottom: 16px; }
-.hero p { font-size: 1.1rem; color: var(--muted); max-width: 46ch; margin-bottom: 28px; }
-.shelf { display: flex; gap: 14px; align-items: flex-end; justify-content: center; }
+.hero h1 {
+  font-size: clamp(2.4rem, 5vw, 3.8rem); font-weight: 600; margin-bottom: 18px;
+}
+.hero p { font-size: 1.15rem; color: var(--ink-soft); max-width: 44ch; margin-bottom: 32px; }
+
+.shelf { display: flex; gap: 16px; align-items: flex-end; justify-content: center; perspective: 800px; }
 .shelf .cover { width: 30%; }
 .shelf .cover:nth-child(2) { width: 34%; }
 
-/* ---------- Book covers (drawn with colour, no images needed) ---------- */
-.cover {
-  aspect-ratio: 2 / 3; border-radius: 4px 10px 10px 4px;
-  padding: 14px 12px; display: flex; flex-direction: column; justify-content: space-between;
-  color: var(--white);
-  box-shadow: inset 8px 0 0 rgba(0, 0, 0, 0.18), 0 8px 18px rgba(15, 27, 45, 0.18);
+.shelf .cover {
+  opacity: 0; transform: translateY(40px) rotate(-3deg);
+  animation: rise-off-shelf 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
-.cover span { font-family: "Bricolage Grotesque", Georgia, serif; font-weight: 700; font-size: 1rem; line-height: 1.2; }
+.shelf .cover:nth-child(1) { animation-delay: 0.05s; }
+.shelf .cover:nth-child(2) { animation-delay: 0.2s; }
+.shelf .cover:nth-child(3) { animation-delay: 0.35s; }
+
+@keyframes rise-off-shelf {
+  to { opacity: 1; transform: translateY(0) rotate(0deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shelf .cover { opacity: 1; transform: none; animation: none; }
+}
+
+/* ---------- Book covers ---------- */
+.cover {
+  aspect-ratio: 2 / 3; border-radius: 3px 12px 12px 3px;
+  padding: 16px 14px; display: flex; flex-direction: column; justify-content: space-between;
+  color: var(--white);
+  box-shadow: inset 10px 0 0 rgba(0, 0, 0, 0.16), 0 10px 22px rgba(28, 19, 48, 0.22);
+}
+.cover span { font-family: "Fraunces", Georgia, serif; font-weight: 600; font-size: 1.05rem; line-height: 1.2; }
 .cover small { font-size: 0.75rem; opacity: 0.85; }
-.c-teal { background: var(--teal); }
-.c-navy { background: var(--navy); }
-.c-gold { background: var(--gold); color: var(--ink); }
-.c-rust { background: var(--rust); }
+.c-teal { background: var(--moss); }
+.c-navy { background: var(--ink); }
+.c-gold { background: var(--ember); color: var(--ink); }
+.c-rust { background: #8B4A3D; }
 
 /* ---------- Book list (home page) ---------- */
-.section { padding: 24px 0 72px; }
-.section h2 { font-size: 1.7rem; margin-bottom: 6px; }
-.section .sub { color: var(--muted); margin-bottom: 24px; }
+.section { padding: 28px 0 80px; }
+.section h2 { font-size: 1.9rem; margin-bottom: 8px; font-weight: 600; }
+.section .sub { color: var(--ink-soft); margin-bottom: 28px; }
 
-.tools { display: flex; flex-direction: column; gap: 14px; margin-bottom: 28px; }
+.tools { display: flex; flex-direction: column; gap: 14px; margin-bottom: 32px; }
 .search {
-  width: 100%; max-width: 420px; padding: 11px 14px;
-  border: 1.5px solid var(--line); border-radius: 8px;
+  width: 100%; max-width: 420px; padding: 12px 16px;
+  border: 1.5px solid var(--line); border-radius: 999px;
   font: inherit; background: var(--white);
 }
 .chips { display: flex; gap: 8px; flex-wrap: wrap; }
 .chip {
   border: 1.5px solid var(--line); background: var(--white); border-radius: 999px;
-  padding: 6px 16px; font: inherit; font-size: 0.92rem; cursor: pointer;
+  padding: 7px 18px; font: inherit; font-size: 0.92rem; cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
-.chip[aria-pressed="true"] { background: var(--ink); color: var(--white); border-color: var(--ink); }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
 
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 28px; }
-.note { color: var(--muted); margin-bottom: 20px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 32px; }
+.note { color: var(--ink-soft); margin-bottom: 20px; }
 
-.book { display: flex; flex-direction: column; gap: 10px; }
-.book .cover-link { display: block; }
+.book { display: flex; flex-direction: column; gap: 12px; }
+.book .cover-link { display: block; transform-style: preserve-3d; transition: transform 0.25s ease; }
+.book .cover-link:hover { transform: translateY(-6px) rotate(-1deg); }
 .book .cover { width: 100%; }
-.book h3 { font-size: 1.05rem; }
-.book h3 a:hover { color: var(--teal); }
-.book .author { color: var(--muted); font-size: 0.92rem; }
+.book h3 { font-size: 1.1rem; font-weight: 600; }
+.book h3 a:hover { color: var(--ember-dark); }
+.book .author { color: var(--ink-soft); font-size: 0.92rem; }
 .book .row { display: flex; align-items: center; justify-content: space-between; margin-top: 4px; }
-.price { font-weight: 600; }
+.price { font-weight: 600; font-family: "Fraunces", Georgia, serif; }
 .buy {
-  border: 1.5px solid var(--teal); color: var(--teal);
-  padding: 7px 16px; border-radius: 8px; font-weight: 600; font-size: 0.92rem;
+  border: 1.5px solid var(--ink); color: var(--ink);
+  padding: 8px 18px; border-radius: 999px; font-weight: 600; font-size: 0.92rem;
+  transition: background 0.2s ease, color 0.2s ease;
 }
-.buy:hover { background: var(--teal); color: var(--white); }
+.buy:hover { background: var(--ink); color: var(--paper); }
 
 /* ---------- Book details page ---------- */
-.back { display: inline-block; margin-top: 28px; color: var(--muted); }
-.back:hover { color: var(--teal); }
+.back { display: inline-block; margin-top: 28px; color: var(--ink-soft); }
+.back:hover { color: var(--ember-dark); }
 .detail {
-  display: grid; grid-template-columns: 240px 1fr;
-  gap: 44px; padding: 28px 0 72px; align-items: start;
+  display: grid; grid-template-columns: 260px 1fr;
+  gap: 48px; padding: 32px 0 80px; align-items: start;
 }
-.detail .cover { width: 100%; max-width: 240px; }
-.detail h1 { font-size: clamp(1.8rem, 4vw, 2.5rem); margin-bottom: 6px; }
-.meta { color: var(--muted); margin-bottom: 18px; }
-.price-big { font-size: 1.5rem; font-weight: 600; margin-bottom: 20px; }
-.desc { max-width: 60ch; margin-bottom: 24px; white-space: pre-line; }
-.actions { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
-.perk { color: var(--muted); font-size: 0.95rem; }
+.detail .cover { width: 100%; max-width: 260px; }
+.detail h1 { font-size: clamp(1.9rem, 4vw, 2.6rem); margin-bottom: 8px; }
+.meta { color: var(--ink-soft); margin-bottom: 20px; }
+.price-big { font-size: 1.6rem; font-weight: 600; margin-bottom: 22px; font-family: "Fraunces", Georgia, serif; }
+.desc { max-width: 60ch; margin-bottom: 26px; white-space: pre-line; color: var(--ink-soft); }
+.actions { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 22px; }
+.perk { color: var(--moss); font-size: 0.95rem; font-weight: 500; }
 
 /* ---------- Checkout page ---------- */
 .checkout {
   display: grid; grid-template-columns: 1.2fr 0.8fr;
-  gap: 32px; padding: 28px 0 72px; align-items: start;
+  gap: 32px; padding: 32px 0 80px; align-items: start;
 }
 .checkout[hidden] { display: none; }
 .panel {
-  background: var(--white); border: 1px solid var(--line);
-  border-radius: 10px; padding: 24px;
+  background: var(--paper-card); border: 1px solid var(--line);
+  border-radius: 16px; padding: 28px;
 }
-.panel h2 { font-size: 1.3rem; margin-bottom: 16px; }
+.panel h2 { font-size: 1.35rem; margin-bottom: 18px; font-weight: 600; }
 .field { margin-bottom: 18px; }
 .field label { display: block; font-weight: 600; margin-bottom: 6px; }
 .field input {
-  width: 100%; padding: 12px 14px; border: 1.5px solid var(--line);
-  border-radius: 8px; font: inherit; background: var(--white);
+  width: 100%; padding: 13px 16px; border: 1.5px solid var(--line);
+  border-radius: 10px; font: inherit; background: var(--white);
+  transition: border-color 0.2s ease;
 }
-.field input:focus { border-color: var(--teal); }
-.hint { font-size: 0.88rem; color: var(--muted); margin-top: 4px; }
+.field input:focus { border-color: var(--ember); }
+.hint { font-size: 0.88rem; color: var(--ink-soft); margin-top: 4px; }
 .check { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 18px; font-size: 0.95rem; }
 .check input { margin-top: 5px; }
-.check a { color: var(--teal); text-decoration: underline; }
+.check a { color: var(--ember-dark); text-decoration: underline; }
 .msg {
-  margin-top: 16px; padding: 12px 14px; border-radius: 8px;
-  background: #FFF6DD; border: 1px solid #F0D58A;
+  margin-top: 16px; padding: 13px 16px; border-radius: 10px;
+  background: #FCF1DC; border: 1px solid var(--ember);
 }
-.msg.error { background: #FDECEA; border-color: #F3B4AE; color: var(--error); }
-.summary-book { display: flex; gap: 14px; align-items: center; margin-bottom: 12px; }
-.summary-book .cover { width: 56px; padding: 0; flex-shrink: 0; }
-.summary-book strong { display: block; }
-.summary-book span { color: var(--muted); font-size: 0.92rem; }
+.msg.error { background: #FBEAE7; border-color: var(--error); color: var(--error); }
+.summary-book { display: flex; gap: 14px; align-items: center; margin-bottom: 14px; }
+.summary-book .cover { width: 58px; padding: 0; flex-shrink: 0; }
+.summary-book strong { display: block; font-family: "Fraunces", Georgia, serif; }
+.summary-book span { color: var(--ink-soft); font-size: 0.92rem; }
 .summary-row {
   display: flex; justify-content: space-between; gap: 12px;
-  padding: 12px 0; border-top: 1px solid var(--line); font-weight: 600;
+  padding: 14px 0; border-top: 1px solid var(--line); font-weight: 600;
+  font-family: "Fraunces", Georgia, serif; font-size: 1.1rem;
 }
 
-/* ---------- Text pages (terms, privacy, contact...) ---------- */
-.prose { max-width: 68ch; padding: 48px 0 72px; }
-.prose h1 { font-size: 2rem; margin-bottom: 8px; }
-.prose .updated { color: var(--muted); margin-bottom: 28px; }
-.prose h2 { font-size: 1.2rem; margin: 28px 0 8px; }
-.prose p, .prose ul { margin-bottom: 12px; }
+/* ---------- Text pages ---------- */
+.prose { max-width: 68ch; padding: 52px 0 80px; }
+.prose h1 { font-size: 2.1rem; margin-bottom: 8px; }
+.prose .updated { color: var(--ink-soft); margin-bottom: 28px; }
+.prose h2 { font-size: 1.25rem; margin: 30px 0 10px; font-weight: 600; }
+.prose p, .prose ul { margin-bottom: 12px; color: var(--ink-soft); }
 .prose ul { padding-left: 22px; }
-.prose a { color: var(--teal); text-decoration: underline; }
+.prose a { color: var(--ember-dark); text-decoration: underline; }
 
-.center { text-align: center; padding: 96px 0; }
-.center h1 { font-size: 2.4rem; margin-bottom: 12px; }
-.center p { color: var(--muted); margin-bottom: 24px; }
+.center { text-align: center; padding: 100px 0; }
+.center h1 { font-size: 2.5rem; margin-bottom: 12px; }
+.center p { color: var(--ink-soft); margin-bottom: 26px; }
 
 /* ---------- Footer ---------- */
-footer { background: var(--ink); color: #C6CEDB; padding: 28px 0; font-size: 0.92rem; }
+footer { background: var(--ink); color: #D8CFE8; padding: 32px 0; font-size: 0.92rem; }
 footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
-footer .links { display: flex; gap: 20px; flex-wrap: wrap; }
+footer .links { display: flex; gap: 22px; flex-wrap: wrap; }
 footer a:hover { color: var(--white); }
 
 /* ---------- Phones ---------- */
 @media (max-width: 720px) {
   .hero .wrap { grid-template-columns: 1fr; }
-  .hero { padding-top: 40px; }
-  .nav { gap: 16px; }
-  .detail { grid-template-columns: 1fr; gap: 24px; }
-  .detail .cover { max-width: 180px; }
+  .hero { padding-top: 48px; }
+  .nav { gap: 18px; }
+  .detail { grid-template-columns: 1fr; gap: 26px; }
+  .detail .cover { max-width: 190px; }
   .checkout { grid-template-columns: 1fr; }
 }
