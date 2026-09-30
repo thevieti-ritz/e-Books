@@ -5,6 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>My Library</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    .library-row {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 0; border-bottom: 1px solid var(--line);
+    }
+    .library-row .cover { width: 48px; padding: 0; flex-shrink: 0; overflow: hidden; }
+    .library-row .cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .library-row .info { flex: 1; }
+    .library-row .info strong { display: block; }
+    .library-row .info span { color: var(--muted); font-size: 0.9rem; }
+  </style>
 </head>
 
 <body data-title="My Library">
@@ -12,13 +23,26 @@
 
   <main>
     <div class="wrap">
-      <article class="prose">
+      <article class="prose" style="max-width:640px;">
         <h1>My Library</h1>
-        <p class="updated">Your purchased books, ready to download again any time.</p>
-        <div class="panel">
-          <h2>Coming soon</h2>
-          <p>Once payments are switched on, every book you buy will appear here, so you can download it again whenever you need to.</p>
-          <p><a href="index.html#books">Browse books</a></p>
+        <p class="updated">Enter the phone number and email you used at checkout to find your past purchases.</p>
+
+        <div class="panel" id="lookup-panel">
+          <div class="field">
+            <label for="lib-phone">Mobile money number</label>
+            <input id="lib-phone" type="tel" placeholder="07XXXXXXXX">
+          </div>
+          <div class="field">
+            <label for="lib-email">Email address</label>
+            <input id="lib-email" type="email" placeholder="you@example.com">
+          </div>
+          <button class="btn" id="lookup-button">Find my books</button>
+          <p class="msg" id="lookup-msg" hidden></p>
+        </div>
+
+        <div class="panel" id="results-panel" hidden style="margin-top:20px;">
+          <h2>Your books</h2>
+          <div id="results-list"></div>
         </div>
       </article>
     </div>
@@ -27,5 +51,90 @@
   <div id="site-footer"></div>
 
   <script src="site.js"></script>
+  <script type="module">
+    import { API_BASE, coverImageUrl } from "./store.js";
+
+    const button = document.getElementById("lookup-button");
+    const msg = document.getElementById("lookup-msg");
+    const resultsPanel = document.getElementById("results-panel");
+    const resultsList = document.getElementById("results-list");
+
+    function showMsg(text, isError) {
+      msg.textContent = text;
+      msg.className = isError ? "msg error" : "msg";
+      msg.hidden = false;
+    }
+
+    button.addEventListener("click", async function () {
+      const phone = document.getElementById("lib-phone").value;
+      const email = document.getElementById("lib-email").value;
+
+      if (!phone || !email) {
+        showMsg("Please enter both your phone number and email.", true);
+        return;
+      }
+
+      button.disabled = true;
+      showMsg("Looking...", false);
+      resultsPanel.hidden = true;
+
+      try {
+        const url = API_BASE + "/my-library?phone=" + encodeURIComponent(phone) + "&email=" + encodeURIComponent(email);
+        const response = await fetch(url);
+        const orders = await response.json();
+
+        if (!response.ok) {
+          showMsg(orders.error || "Something went wrong.", true);
+          return;
+        }
+
+        if (orders.length === 0) {
+          showMsg("No purchases found for that phone number and email.", true);
+          return;
+        }
+
+        msg.hidden = true;
+        resultsList.innerHTML = "";
+
+        orders.forEach(function (order) {
+          const row = document.createElement("div");
+          row.className = "library-row";
+
+          const cover = document.createElement("div");
+          cover.className = "cover c-" + (order.cover || "teal");
+          const imageUrl = coverImageUrl(order);
+          if (imageUrl) {
+            const img = document.createElement("img");
+            img.src = imageUrl;
+            img.alt = order.title;
+            cover.append(img);
+          }
+
+          const info = document.createElement("div");
+          info.className = "info";
+          const strong = document.createElement("strong");
+          strong.textContent = order.title;
+          const span = document.createElement("span");
+          span.textContent = order.author || "";
+          info.append(strong, span);
+
+          const downloadLink = document.createElement("a");
+          downloadLink.className = "buy";
+          downloadLink.textContent = "Download";
+          downloadLink.href = API_BASE + "/download/" + encodeURIComponent(order.orderId) + "/" + encodeURIComponent(order.downloadToken);
+
+          row.append(cover, info, downloadLink);
+          resultsList.append(row);
+        });
+
+        resultsPanel.hidden = false;
+      } catch (error) {
+        console.error(error);
+        showMsg("Something went wrong. Please try again.", true);
+      } finally {
+        button.disabled = false;
+      }
+    });
+  </script>
 </body>
 </html>
